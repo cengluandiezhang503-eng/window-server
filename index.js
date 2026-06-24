@@ -7,6 +7,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const PORT = process.env.PORT || 3001;
+
 app.get('/', (req, res) => {
   res.json({ message: '服务器正常运行' });
 });
@@ -42,6 +44,6 @@ app.post('/api/quote', async (req, res) => {
   }
 });
 
-app.listen(3001, () => {
-  console.log('服务器运行在 http://localhost:3001');
+app.listen(PORT, () => {
+  console.log(`服务器运行在端口 ${PORT}`);
 });
