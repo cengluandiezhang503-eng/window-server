@@ -16,6 +16,25 @@ app.get('/', (req, res) => {
   res.json({ message: '服务器正常运行' });
 });
 
+app.get('/api/products', async (req, res) => {
+  const { category } = req.query;
+  let query = supabase.from('products').select('*').order('created_at', { ascending: true });
+  if (category) query = query.eq('category', category);
+  const { data, error } = await query;
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+app.get('/api/products/:id', async (req, res) => {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', req.params.id)
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
 app.get('/api/quotes', async (req, res) => {
   const { data, error } = await supabase
     .from('quotes')
@@ -37,9 +56,7 @@ app.patch('/api/quotes/:id', async (req, res) => {
 });
 
 app.get('/api/content', async (req, res) => {
-  const { data, error } = await supabase
-    .from('content')
-    .select('*');
+  const { data, error } = await supabase.from('content').select('*');
   if (error) return res.status(500).json({ error: error.message });
   const content = {};
   data.forEach(item => { content[item.key] = item.value; });
@@ -49,10 +66,7 @@ app.get('/api/content', async (req, res) => {
 app.patch('/api/content', async (req, res) => {
   const updates = req.body;
   for (const [key, value] of Object.entries(updates)) {
-    await supabase
-      .from('content')
-      .update({ value, updated_at: new Date() })
-      .eq('key', key);
+    await supabase.from('content').update({ value, updated_at: new Date() }).eq('key', key);
   }
   res.json({ success: true });
 });
