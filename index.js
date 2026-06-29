@@ -167,3 +167,72 @@ app.post('/api/quote', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`服务器运行在端口 ${PORT}`);
 });
+
+// 添加产品
+app.post('/api/products', async (req, res) => {
+  const { name, description, price, category, image } = req.body;
+  const { data, error } = await supabase
+    .from('products')
+    .insert([{ name, description, price, category, image }])
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// 编辑产品
+app.put('/api/products/:id', async (req, res) => {
+  const { name, description, price, category, image } = req.body;
+  const { data, error } = await supabase
+    .from('products')
+    .update({ name, description, price, category, image })
+    .eq('id', req.params.id)
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// 删除产品
+app.delete('/api/products/:id', async (req, res) => {
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
+// 添加产品系列
+app.post('/api/series', async (req, res) => {
+  const { name, description, tag, image } = req.body;
+  const { data, error } = await supabase
+    .from('series')
+    .insert([{ name, description, tag, image }])
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true, data });
+});
+
+// 删除产品系列
+app.delete('/api/series/:id', async (req, res) => {
+  const { error } = await supabase
+    .from('series')
+    .delete()
+    .eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
+// 更新网站内容
+app.post('/api/content', async (req, res) => {
+  const { key, value } = req.body;
+  const { data, error } = await supabase
+    .from('content')
+    .upsert([{ key, value }], { onConflict: 'key' })
+    .select()
+    .single();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
